@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>File Import</title>
+    <style>
+        body {
+            background-image: linear-gradient( 50.2deg, rgba(173, 252, 234, 1) 26.8%, rgba(192, 229, 246, 1) 64%);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 60px auto;
+        }
+        
+        .container h1 {
+            text-align: center;
+            color: white;
+        }
+        
+        form {
+            background-color: white;
+            padding: 30px;
+        }
+        
+        form .input-group {
+            margin-bottom: 15px;
+        }
+        
+        form label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        form input {
+            padding: 12px 20px;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+        
+        .submit-btn {
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            background: rgb(101, 129, 141, 1);
+            font-size: 18px;
+            color: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>File Import</h1>
+        <form id="form" method="post" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="uploaded_file">Select file</label>
+                <input id="uploaded_file" type="file" />
+            </div>
+            <button class="submit-btn" type="submit">Upload</button>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('form');
+
+        form.addEventListener('submit', submitForm);
+
+        function submitForm(e) {
+            e.preventDefault();
+            // const name = document.getElementById("name");
+            const files = document.getElementById('uploaded_file');
+            const formData = new FormData();
+            // formData.append("name", name.value);
+            // for (let i = 0; i < files.files.length; i++) {
+            formData.append('uploaded_file', files.files[0]);
+            // }
+            fetch('http://localhost:3000/import', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then((res) => console.log(res))
+                .catch((err) => ('Error occured', err));
+        }
+    </script>
+</body>
+
+</html>

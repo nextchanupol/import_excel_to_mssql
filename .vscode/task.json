@@ -1,0 +1,9 @@
+{
+    "tasks": [{
+        "type": "typescript",
+        "tsconfig": "import_job/tsconfig.json",
+        "problemMatcher": [
+            "$tsc"
+        ]
+    }]
+}
