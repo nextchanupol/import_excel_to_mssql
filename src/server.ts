@@ -9,6 +9,7 @@ import { storage } from './config/multer.config';
 import { dbPool, queries, sql } from './database';
 import { IFileItem } from './interfaces/import-file';
 import Logger from './lib/logger';
+import morganMiddleware from './middleware/morgan.middleware';
 import { TypeRequestQuery } from './utils/query-request';
 import {
   getCellValue,
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
+app.use(morganMiddleware);
 
 export const uploadDir = path.join(__dirname, 'uploads/');
 const upload = multer({ storage });
@@ -64,14 +66,25 @@ const importFile = async (req: Request, res: Response) => {
     Logger.info(`end::importFile_items:`);
 
     const pool = await dbPool();
-    // const result = await pool?.request().query('select * from dbo.TRANCALL');
-    const result = await pool
-      ?.request()
-      .input('contNo', sql.NVarChar, 'CONTNO')
-      .input('callNo', sql.Decimal, 1)
-      .query(queries.insertTranCall);
-    Logger.debug({ result });
-    res.json({ result: items });
+
+    // insert without ORDERID
+    items.forEach(async (v) => {
+      await pool
+        ?.request()
+        .input('contNo', sql.NVarChar, v.contNo)
+        .input('callNo', sql.Decimal, v.callNo <= 0 ? null : v.callNo)
+        .input('callDt', sql.DateTime, v.callDt)
+        .input('callNm', sql.NVarChar, v.callNm)
+        .input('memo1', sql.NVarChar, v.memo1)
+        .input('userId', sql.NVarChar, v.userId)
+        .input('inPDT', sql.NVarChar, v.inPDT)
+        .input('callCode', sql.NVarChar, v.callCode)
+        .input('nextAPPT', sql.DateTime, v.nextAPPT)
+        .input('officer', sql.NVarChar, v.officer)
+        .query(queries.insertTranCall)
+        .catch((reason) => Logger.error(reason));
+    });
+    res.json({ result: 'ok' });
   } catch (error) {
     Logger.error(error);
     res.json({ error });
