@@ -6,6 +6,7 @@
       "es6",
       "ESNext"
     ],
+    "sourceMap": true,
     "allowJs": true,
     "checkJs": true,
     "outDir": "dist",

@@ -6,6 +6,7 @@ import multer from 'multer';
 import * as path from 'path';
 
 import { storage } from './config/multer.config';
+import { dbPool, queries, sql } from './database';
 import { IFileItem } from './interfaces/import-file';
 import Logger from './lib/logger';
 import { TypeRequestQuery } from './utils/query-request';
@@ -32,6 +33,7 @@ app.get('/', function (req: TypeRequestQuery<{}>, res: Response) {
 const importFile = async (req: Request, res: Response) => {
   //path.join(__dirname, 'uploads/xlsx/test_file_new.xlsx');
   const filePath = req.file?.path as string;
+  Logger.http(req.file);
   Logger.info(`importFile_filePath: ${filePath}`);
 
   try {
@@ -60,9 +62,19 @@ const importFile = async (req: Request, res: Response) => {
     Logger.info(`begin::importFile_items:`);
     Logger.info({ ...items });
     Logger.info(`end::importFile_items:`);
+
+    const pool = await dbPool();
+    // const result = await pool?.request().query('select * from dbo.TRANCALL');
+    const result = await pool
+      ?.request()
+      .input('contNo', sql.NVarChar, 'CONTNO')
+      .input('callNo', sql.Decimal, 1)
+      .query(queries.insertTranCall);
+    Logger.debug({ result });
     res.json({ result: items });
   } catch (error) {
     Logger.error(error);
+    res.json({ error });
   }
 };
 
