@@ -59,21 +59,23 @@
 
 <body>
     <div class="container">
+        <div class="loader" id="loader"></div>
         <h1>File Import</h1>
         <form id="form" method="post" enctype="multipart/form-data">
             <div class="input-group">
                 <label for="uploaded_file">Select file</label>
-                <input id="uploaded_file" type="file" />
+                <input id="uploaded_file" required type="file" />
             </div>
             <button class="submit-btn" type="submit">Upload</button>
         </form>
     </div>
+    <script src="https://cdn.jsdelivr.net/gh/AmagiTech/JSLoader/amagiloader.js"></script>
     <script>
         const form = document.getElementById('form');
 
         form.addEventListener('submit', submitForm);
 
-        function submitForm(e) {
+        async function submitForm(e) {
             e.preventDefault();
             // const name = document.getElementById("name");
             const files = document.getElementById('uploaded_file');
@@ -82,12 +84,21 @@
             // for (let i = 0; i < files.files.length; i++) {
             formData.append('uploaded_file', files.files[0]);
             // }
-            fetch('http://localhost:3000/import', {
+            AmagiLoader.show();
+            await fetch('http://localhost:3000/import', {
                     method: 'POST',
                     body: formData
                 })
-                .then((res) => console.log(res))
-                .catch((err) => ('Error occured', err));
+                .then((res) => {
+                    // alert(res.statusText);
+                    console.log(res);
+                    AmagiLoader.hide();
+                })
+                .catch((err) => {
+                    alert(err);
+                    console.log(err);
+                    AmagiLoader.hide();
+                });
         }
     </script>
 </body>

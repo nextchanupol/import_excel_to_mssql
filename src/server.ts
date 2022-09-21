@@ -33,7 +33,6 @@ app.get('/', function (req: TypeRequestQuery<{}>, res: Response) {
 });
 
 const importFile = async (req: Request, res: Response) => {
-  //path.join(__dirname, 'uploads/xlsx/test_file_new.xlsx');
   const filePath = req.file?.path as string;
   Logger.http(req.file);
   Logger.info(`importFile_filePath: ${filePath}`);
@@ -61,9 +60,9 @@ const importFile = async (req: Request, res: Response) => {
         officer: getCellValue(row, 10)
       };
     });
-    Logger.info(`begin::importFile_items:`);
+    // Logger.info(`begin::importFile_items:`);
     Logger.info({ ...items });
-    Logger.info(`end::importFile_items:`);
+    // Logger.info(`end::importFile_items:`);
 
     const pool = await dbPool();
 
@@ -77,9 +76,19 @@ const importFile = async (req: Request, res: Response) => {
         .input('callNm', sql.NVarChar, v.callNm)
         .input('memo1', sql.NVarChar, v.memo1)
         .input('userId', sql.NVarChar, v.userId)
-        .input('inPDT', sql.NVarChar, v.inPDT)
+        .input(
+          'inPDT',
+          sql.NVarChar,
+          v.inPDT == null || v.inPDT == '' ? null : v.inPDT
+        )
         .input('callCode', sql.NVarChar, v.callCode)
-        .input('nextAPPT', sql.DateTime, v.nextAPPT)
+        .input(
+          'nextAPPT',
+          sql.DateTime,
+          v.nextAPPT == null || v.nextAPPT == '' || v.nextAPPT === 'NaN-NaN-NaN'
+            ? null
+            : v.nextAPPT
+        )
         .input('officer', sql.NVarChar, v.officer)
         .query(queries.insertTranCall)
         .catch((reason) => Logger.error(reason));
